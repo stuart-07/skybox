@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud Storage App</title>
+  <style>
+  body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #e0f7fa; /* Lighter background for a refreshing look */
+}
+
+#container {
+  width: 700px; /* Increased width */
+  max-width: 90%; /* Responsive max-width */
+  padding: 30px; /* Increased padding */
+  background-color: #fff;
+  box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.2); /* Stronger shadow for depth */
+  border-radius: 20px; /* Increased border radius for softer edges */
+  overflow: hidden;
+}
+
+h1, h3 {
+  text-align: center;
+  margin-bottom: 20px; /* Slightly decreased margin for a compact look */
+  color: #00796b; /* A pleasant color for headings */
+}
+
+.form-group {
+  margin-bottom: 25px; /* Increased margin for better spacing */
+}
+
+.form-group input[type="file"] {
+  width: 100%;
+  padding: 15px; /* Increased padding for input */
+  border: 1px solid #00796b; /* Changed border color */
+  border-radius: 5px;
+  margin-top: 5px;
+  transition: border-color 0.3s; /* Transition effect for border */
+}
+
+.form-group input[type="file"]:focus {
+  border-color: #004d40; /* Darker shade when focused */
+}
+
+#loginBtn, #signupBtn, #logoutBtn, #uploadBtn {
+  width: 100%;
+  padding: 15px; /* Increased padding */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #00796b; /* Changed button color */
+  color: white;
+  margin-top: 10px;
+  transition: background-color 0.3s, transform 0.2s; /* Added transition for hover effect */
+}
+
+#loginBtn:hover, #signupBtn:hover, #logoutBtn:hover, #uploadBtn:hover {
+  background-color: #004d40; /* Darker shade on hover */
+  transform: translateY(-2px); /* Slight lift effect on hover */
+}
+
+#fileList {
+  margin-top: 20px;
+  border: 1px solid #ccc;
+  padding: 15px; /* Increased padding */
+  max-height: 300px; /* Increased max height */
+  overflow-y: auto;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1); /* Subtle inner shadow */
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Center items vertically */
+  margin-bottom: 10px; /* Increased margin */
+}
+
+.file-item button {
+  background-color: #f44336; /* Keep red color for delete */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 8px 15px; /* Increased padding */
+  transition: background-color 0.3s, transform 0.2s; /* Added transition for hover effect */
+}
+
+.file-item button:hover {
+  background-color: #c62828; /* Darker shade on hover */
+  transform: translateY(-1px); /* Slight lift effect on hover */
+}
+
+#noFilesMessage {
+  font-size: 20px; /* Increased font size */
+  color: #333;
+  text-align: center;
+  margin-top: 15px;
+}
+
+#progressContainer {
+  width: 100%;
+  background-color: #e0f7fa; /* Changed to match overall theme */
+  border-radius: 5px;
+  margin-top: 10px;
+  display: none;
+}
+.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+#progressBar {
+  width: 0%;
+  height: 30px; /* Increased height */
+  background-color: #00796b; /* Changed to match button color */
+  border-radius: 5px;
+}
+
+#timeRemaining {
+  text-align: center;
+  margin-top: 5px;
+  font-size: 16px; /* Increased font size */
+  color: #333; /* Added color for visibility */
+}
+
+#profileUI {
+  background-color: #fff;
+  padding: 20px; /* Increased padding */
+  border-radius: 5px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); /* Slightly deeper shadow */
+}
+
+#message {
+  color: red;
+  text-align: center;
+  margin-top: 20px; /* Increased margin */
+  display: none;
+  font-size: 16px; /* Increased font size */
+}
+footer {
+    position: absolute; /* Ensures the footer is positioned relative to the container */
+    bottom: 0; /* Sticks it to the bottom of the page */
+    left: 50%; /* Centers it horizontally */
+    transform: translateX(-50%); /* Adjusts it back to be exactly centered */
+    width: 100%; /* Full width */
+    text-align: center; /* Center the text */
+    padding: 10px 0; /* Padding for spacing */
+    background-color: #fff; /* Background color of the footer */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  }
+
+  /* Style for footer text */
+  footer p {
+    margin: 0; /* Remove default margin */
+    color: #333; /* Text color */
+    font-size: 14px; /* Font size */
+  }
+.chosen-file {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 5px 0; /* Add margin between chosen files */
+      padding: 5px; /* Add some padding */
+      border: 1px solid #00796b; /* Border for chosen files */
+      border-radius: 5px; /* Rounded corners */
+      background-color: #f9f9f9; /* Light background */
+    }
+
+    .chosen-file button {
+      background-color: #f44336; /* Cross button color */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 5px; /* Padding for the button */
+      margin-left: 10px; /* Spacing between text and button */
+    }
+
+    /* Style for toggle switch */
+#darkModeToggle {
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  position: relative;
+  margin-top: 10px; /* Add margin for spacing */
+}
+
+/* Hidden checkbox */
+#darkModeCheckbox {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Slider for toggle */
+#darkModeToggle::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 34px;
+  transition: .4s;
+}
+
+/* Circle inside toggle */
+#darkModeToggle::after {
+  content: "";
+  position: absolute;
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+
+/* When checked */
+#darkModeCheckbox:checked + #darkModeToggle::before {
+  background-color: #00796b; /* Green background when checked */
+}
+
+#darkModeCheckbox:checked + #darkModeToggle::after {
+  transform: translateX(26px);
+}
+/* Dark mode styling */
+.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.dark-mode #container {
+    background-color: #1e1e1e; /* Dark background for the container */
+    box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.1); /* Lighter shadow for depth */
+}
+
+.dark-mode h1, .dark-mode h3, .dark-mode #noFilesMessage, .dark-mode #timeRemaining {
+    color: #ffffff; /* White text for headers and messages */
+}
+
+.dark-mode #progressBar {
+    background-color: #00796b; /* Progress bar color remains the same */
+}
+
+.dark-mode #loginBtn, .dark-mode #signupBtn, .dark-mode #logoutBtn, .dark-mode #uploadBtn {
+    background-color: #00796b; /* Button color in dark mode */
+    color: white; /* Text color for buttons */
+}
+
+.dark-mode #loginBtn:hover, .dark-mode #signupBtn:hover, .dark-mode #logoutBtn:hover, .dark-mode #uploadBtn:hover {
+    background-color: #004d40; /* Darker button shade on hover */
+}
+
+.dark-mode .file-item button {
+    background-color: #f44336; /* Keep red color for delete in dark mode */
+}
+
+.dark-mode footer {
+    background-color: #1e1e1e; /* Dark footer background */
+}
+
+.dark-mode footer p {
+    color: #ffffff; /* White text color in footer */
+}
+
+/* Ensure the profile UI adapts to dark mode */
+.dark-mode #profileUI {
+    background-color: #1e1e1e; /* Dark background for profile UI */
+    color: #ffffff; /* White text color */
+}
+
+
+
+/* Chosen file background in dark mode */
+.dark-mode .chosen-file {
+    background-color: #333; /* Darker background for chosen files */
+    border: 1px solid #00796b; /* Keep the border color */
+}
+/* Ensure file item visibility in dark mode */
+.dark-mode .file-item {
+  background-color: #1e1e1e; /* Dark background for file items */
+  border: 1px solid #00796b; /* Keep border color */
+}
+
+.dark-mode .file-item button {
+  background-color: #f44336; /* Keep delete button color */
+  color: white; /* Ensure text is white */
+}
+
+/* Change the text color for the file item */
+.dark-mode .file-item span {
+  color: #ffffff; /* Make text white */
+}
+
+/* Update the file list background color in dark mode */
+.dark-mode #fileList {
+  background-color: #2c2c2c; /* Dark background for file list */
+  color: #ffffff; /* Ensure text is white */
+}
+
+/* Make sure the no files message is visible in dark mode */
+.dark-mode #noFilesMessage {
+  color: #ffffff; /* Change no files message color to white */
+}
+
+/* Position the profile settings button */
+#profileSettings {
+  position: absolute; 
+  top: 20px; 
+  right: 20px; 
+  text-align: right;
+}
+
+/* Button container styling */
+.button-container {
+    display: flex; /* Use flexbox for horizontal alignment */
+    justify-content: space-between; /* Distribute space evenly between buttons */
+    margin: 5px 0; /* Add some vertical margin */
+}
+
+/* Button styling */
+.button-container button {
+    margin: 0 5px; /* Add horizontal margin between buttons */
+}
+
+/* Horizontal divider styling */
+.divider {
+    border: none; /* Remove default border */
+    height: 1px; /* Set height */
+    background-color: #00796b; /* Divider color */
+    margin: 10px 0; /* Add margin above and below */
+}
+
+/* Additional styles for dark mode if needed */
+.dark-mode .divider {
+    background-color: #4caf50; /* Change divider color in dark mode */
+}
+.mode-text {
+    font-size: 12px; /* Small font size */
+    color: #666; /* Default text color */
+    margin-top: 5px; /* Spacing above the text */
+}
+
+/* Dark mode specific styling */
+.dark-mode .mode-text {
+    color: #ffffff; /* Change text color in dark mode */
+}
+
+/* Ensure text visibility in dark mode */
+.dark-mode #welcomeMessage, 
+.dark-mode #message {
+  color: #ffffff; /* Change text color for dark mode */
+}
+
+
+
+
+  </style>
+</head>
+<body>
+
+<div id="container">
+  <h1>SkyBox</h1>
+
+  <!-- Login Form -->
+  <div id="loginForm">
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" required>
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" required>
+      <button id="resetPasswordBtn">Reset Password</button>
+
+    </div>
+    <button id="loginBtn">Login</button>
+    <button id="signupBtn">Sign Up</button>
+  </div>
+
+  <!-- Signup Form -->
+  <div id="signupForm" style="display: none;">
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" required>
+    </div>
+    <div class="form-group">
+      <label for="signupEmail">Email</label>
+      <input type="email" id="signupEmail" required>
+    </div>
+    <div class="form-group">
+      <label for="signupPassword">Password</label>
+      <input type="password" id="signupPassword" required>
+    </div>
+    <button id="registerBtn">Register</button>
+    <button id="backToLoginBtn">Back to Login</button>
+  </div>
+
+  <!-- Cloud Storage Section -->
+  <div id="cloudStorage" style="display: none;">
+    <h3>Upload File</h3>
+    <input type="file" id="fileInput" multiple>
+    <button id="uploadBtn" style="display: none;">Upload</button>
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+      <div id="timeRemaining"></div>
+
+
+    </div>
+    <h3>Uploaded Files</h3>
+    <div id="fileList"></div>
+    <div id="noFilesMessage" style="display: none;">You have not uploaded anything.</div>
+  </div>
+
+
+<!-- Profile UI -->
+<div id="profileUI" style="position: absolute; top: 20px; right: 20px; text-align: right; display: none;">
+  <h3 id="welcomeMessage"></h3>
+  <button id="logoutBtn">Logout</button>
+  <input type="checkbox" id="darkModeCheckbox" style="margin-right: 0px;">
+    <label for="darkModeCheckbox" id="darkModeToggle"></label>
+    <p id="mode-indicator" class="mode-text">Dark Mode</p> <!-- Add this line -->
+</div>
+
+
+
+  <footer>
+    <p>&copy; 2024 Skyline Studios. All rights reserved.</p>
+</footer>
+  <div id="message"></div>
+</div>
+
+<!-- Firebase Setup -->
+<script type="module">
+  // Import Firebase SDKs (Modular Syntax)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-auth.js";
+  import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-database.js";
+  import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/9.16.0/firebase-storage.js";
+  
+
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBl7nuXZF0uJ7Cf7nJDwLDOIZctxymnkOU",
+    authDomain: "instant-messaging-501e1.firebaseapp.com",
+    projectId: "instant-messaging-501e1",
+    storageBucket: "instant-messaging-501e1.appspot.com",
+    messagingSenderId: "1001449026730",
+    appId: "1:1001449026730:web:786a63e73b2ab058338cd3",
+    databaseURL: "https://instant-messaging-501e1-default-rtdb.firebaseio.com/"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const db = getDatabase(app);
+  const storage = getStorage(app);
+
+  // DOM Elements
+  const loginForm = document.getElementById('loginForm');
+  const signupForm = document.getElementById('signupForm');
+  const cloudStorage = document.getElementById('cloudStorage');
+  const fileList = document.getElementById('fileList');
+  const fileInput = document.getElementById('fileInput');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const noFilesMessage = document.getElementById('noFilesMessage');
+  const progressContainer = document.getElementById('progressContainer');
+  const progressBar = document.getElementById('progressBar');
+  const timeRemaining = document.getElementById('timeRemaining');
+  const message = document.getElementById('message');
+
+// Auto login check
+onAuthStateChanged(auth, (user) => {
+  const profileUI = document.getElementById('profileUI');
+  const welcomeMessage = document.getElementById('welcomeMessage');
+  
+  if (user) {
+    const userId = user.uid;
+    const username = user.displayName || user.email.split('@')[0]; // Use display name or email if not set
+    
+    // Update profile UI and other elements on successful login
+    welcomeMessage.textContent = `Welcome, ${username}`;
+    profileUI.style.display = 'block';
+    
+    cloudStorage.style.display = 'block';
+    loginForm.style.display = 'none';
+    signupForm.style.display = 'none';
+    uploadBtn.style.display = 'block'; // Show the upload button
+    
+    loadFiles(userId); // Load user-specific files
+    showMessage('Login successful!', 'green');
+    
+  } else {
+    // Handle UI updates on logout
+    loginForm.style.display = 'block';
+    cloudStorage.style.display = 'none';
+    signupForm.style.display = 'none';
+    uploadBtn.style.display = 'none'; // Hide the upload button when logged out
+    
+    profileUI.style.display = 'none'; // Hide profile UI
+    welcomeMessage.textContent = ''; // Clear welcome message
+    
+    message.style.display = 'none'; // Hide any active messages
+  }
+});
+
+
+const darkModeToggle = document.getElementById('darkModeToggle');
+
+darkModeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+});
+
+// CSS for dark mode
+
+
+function showNotification(message, type) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.style.color = type === 'error' ? 'red' : 'green';
+    notification.style.display = 'block';
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3000);
+}
+function showProfileUI() {
+    profileUI.style.display = profileUI.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // Show settings UI
+
+const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+
+
+
+fileInput.addEventListener('change', (event) => {
+    const files = event.target.files;
+    for (let file of files) {
+        if (!allowedTypes.includes(file.type)) {
+            showNotification('Invalid file type!', 'error');
+            fileInput.value = ''; // Clear the input
+            break;
+        }
+    }
+});
+
+
+function loadFiles(userId) {
+  const filesRef = ref(db, 'files/' + userId); // Reference to the user's files
+
+  // Clear the file list before loading new files
+  fileList.innerHTML = ''; 
+
+  onValue(filesRef, (snapshot) => {
+    if (snapshot.exists()) {
+      snapshot.forEach((childSnapshot) => {
+        const fileData = childSnapshot.val();
+        const fileDiv = document.createElement('div');
+        fileDiv.classList.add('file-item');
+        
+        // Use template literals for HTML content
+        fileDiv.innerHTML = `
+          <span>${fileData.name}</span>
+          <button onclick="deleteFile('${childSnapshot.key}')">Delete</button>
+          <button onclick="downloadFile('${fileData.url}')">Download</button>
+          <button class="share-btn" data-url="${fileData.url}">Share</button>
+        `;
+
+        // Append the file item to the list
+        fileList.appendChild(fileDiv);
+      });
+      noFilesMessage.style.display = 'none'; // Hide "no files" message
+    } else {
+      noFilesMessage.style.display = 'block'; // Show "no files" message
+    }
+  }, (error) => {
+    // Handle errors when retrieving data
+    console.error("Error loading files: ", error);
+    noFilesMessage.style.display = 'block'; // Optionally show an error message
+  });
+}
+
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('share-btn')) {
+        const url = event.target.getAttribute('data-url');
+        copyToClipboard(url);
+    }
+});
+
+// Function to copy URL to clipboard with auto-download
+function copyToClipboard(url) {
+    // Append the correct query parameters for download
+    const downloadUrl = url + '?alt=media&download=true';  
+
+    navigator.clipboard.writeText(downloadUrl)
+        .then(() => {
+            showMessage('Download link copied to clipboard!', 'green');
+        })
+        .catch(err => {
+            showMessage('Failed to copy URL: ' + err.message);
+        });
+}
+
+
+
+  // Show message
+  function showMessage(text, color = 'red') {
+    message.textContent = text;
+    message.style.color = color;
+    message.style.display = 'block';
+    setTimeout(() => {
+      message.style.display = 'none';
+    }, 3000);
+  }
+
+  // Login
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    signInWithEmailAndPassword(auth, email, password)
+      .then(userCredential => {
+        showMessage('Login successful!', 'green');
+        const userId = userCredential.user.uid;
+        loadFiles(userId);
+      })
+      .catch(error => {
+        showMessage(error.message);
+      });
+  });
+
+  // Sign up
+  document.getElementById('signupBtn').addEventListener('click', () => {
+    signupForm.style.display = 'block';
+    loginForm.style.display = 'none';
+  });
+
+  document.getElementById('resetPasswordBtn').addEventListener('click', () => {
+  const email = prompt("Please enter your email to reset the password:");
+  if (email) {
+    sendPasswordResetEmail(auth, email).then(() => {
+      alert("If an account exists with that email, a password reset link has been sent.");
+    }).catch((error) => {
+      alert("Error: " + error.message);
+    });
+  }
+});
+
+// Handle Sign In
+document.getElementById('loginForm').addEventListener('submit', (event) => {
+    event.preventDefault(); // Prevent form from reloading the page
+    
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        location.reload(); // Reload page after login
+      })
+      .catch((error) => {
+        console.error("Error signing in:", error.message);
+      });
+  });
+
+  // Handle Sign Up
+  document.getElementById('signupForm').addEventListener('submit', (event) => {
+    event.preventDefault(); // Prevent form from reloading the page
+
+    const signupEmail = document.getElementById('signupEmail').value;
+    const signupPassword = document.getElementById('signupPassword').value;
+
+    createUserWithEmailAndPassword(auth, signupEmail, signupPassword)
+      .then((userCredential) => {
+        location.reload(); // Reload page after registration
+      })
+      .catch((error) => {
+        console.error("Error signing up:", error.message);
+      });
+  });
+
+  // Register new user
+  document.getElementById('registerBtn').addEventListener('click', () => {
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+    const username = document.getElementById('username').value;
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const userId = userCredential.user.uid;
+        set(ref(db, 'users/' + userId), { username });
+        showMessage('Signup successful!', 'green');
+        signupForm.style.display = 'none';
+        loginForm.style.display = 'block';
+      })
+      .catch((error) => {
+        showMessage(error.message);
+      });
+  });
+
+  // Back to login from signup
+  document.getElementById('backToLoginBtn').addEventListener('click', () => {
+    signupForm.style.display = 'none';
+    loginForm.style.display = 'block';
+  });
+
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    signOut(auth)
+      .then(() => {
+        showMessage('Logout successful!', 'green');
+        loginForm.style.display = 'block';
+        cloudStorage.style.display = 'none';
+        signupForm.style.display = 'none';
+      })
+      .catch((error) => {
+        showMessage(error.message);
+      });
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+  signOut(auth).then(() => {
+    location.reload(); // Reload the page after logout
+  });
+});
+
+  // File Upload
+  fileInput.addEventListener('change', (e) => {
+    const files = e.target.files;
+    if (files.length > 0) {
+      uploadBtn.disabled = false;
+    } else {
+      uploadBtn.disabled = true;
+    }
+  });
+
+  document.getElementById('uploadBtn').addEventListener('click', () => {
+    const files = fileInput.files;
+    const userId = auth.currentUser.uid;
+    if (files.length > 0) {
+      progressContainer.style.display = 'block';
+      Array.from(files).forEach(file => uploadFile(userId, file));
+    } else {
+      showMessage('No files selected for upload.', 'red');
+    }
+  });
+
+  // Function to sanitize the file name
+function sanitizeFileName(fileName) {
+  return fileName.replace(/[.#$[\]]/g, '').replace(/[()]/g, '');
+}
+
+function uploadFile(userId, file) {
+  // Sanitize the file name while keeping the extension intact
+  const sanitizedFileName = sanitizeFileName(file.name);
+
+  // Get reference to storage location using the sanitized filename
+  const storageReference = storageRef(storage, `files/${userId}/${sanitizedFileName}`);
+
+  // Create a resumable upload task
+  const uploadTask = uploadBytesResumable(storageReference, file);
+
+  // Monitor the upload progress
+  uploadTask.on('state_changed', (snapshot) => {
+    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+    progressBar.style.width = `${progress}%`;
+    timeRemaining.textContent = `Uploading: ${Math.round(progress)}% completed`; // Progress display
+  }, (error) => {
+    // Handle upload errors
+    showMessage(error.message, 'red');
+  }, () => {
+    // When upload is complete, get the download URL
+    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+      const fileData = {
+        name: sanitizedFileName,  // Use sanitized name here
+        url: downloadURL
+      };
+
+      // Save the file data to the database under the user's files
+      set(ref(db, `files/${userId}/${sanitizedFileName}`), fileData)
+        .then(() => {
+          // Notify the user of the successful upload
+          showMessage('Upload successful!', 'green');
+
+          // Clear the input field and reset progress UI
+          fileInput.value = '';
+          progressBar.style.width = '0%';
+          progressContainer.style.display = 'none';
+
+          // Refresh file list to show the newly uploaded file
+          loadFiles(userId);
+        })
+        .catch((error) => {
+          // Handle errors while saving to the database
+          showMessage(error.message, 'red');
+        });
+    });
+  });
+}
+
+
+
+
+// Delete file
+function deleteFile(fileId) {
+  const userId = auth.currentUser.uid;
+
+  // Reference to the file in Firebase Storage
+  const fileRef = storageRef(storage, 'files/' + userId + '/' + fileId);
+
+  // Remove the file from Cloud Storage
+  deleteObject(fileRef).then(() => {
+    // Remove the file entry from the database
+    remove(ref(db, 'files/' + userId + '/' + fileId))
+      .then(() => {
+        showMessage('File deleted successfully!', 'green');
+        loadFiles(userId); // Refresh the file list
+      })
+      .catch((error) => {
+        showMessage('Error deleting file from database: ' + error.message);
+      });
+  }).catch((error) => {
+    showMessage('Error deleting file from storage: ' + error.message);
+  });
+}
+
+function downloadFile(fileName, fileUrl) {
+  const extension = fileName.split('.').pop(); // Extract extension
+  const nameWithoutExtension = fileName.replace(`.${extension}`, ''); // Extract name without extension
+  const finalFileName = `${nameWithoutExtension}.${extension}`; // Ensure dot separates name and extension
+
+  const link = document.createElement('a');
+  link.href = fileUrl;
+  link.download = finalFileName;  // Use the properly formatted filename
+  link.click();
+}
+
+window.downloadFile = function(url) {
+  window.open(url, '_blank');
+};
+
+// Usage
+
+
+
+// Export the deleteFile function to the global scope
+window.deleteFile = deleteFile; // Make deleteFile available globally
+
+
+
+
+</script>
+
+</body>
+</html>
